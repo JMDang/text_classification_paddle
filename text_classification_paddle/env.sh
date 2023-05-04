@@ -17,4 +17,4 @@ export PADDLE_IS_LOCAL=1
 #表示分配的显存块占GPU总可用显存大小的比例，范围[0,1]
 export FLAGS_fraction_of_gpu_memory_to_use=0.5
 #选择要使用的GPU
-export CUDA_VISIBLE_DEVICES=5
+export CUDA_VISIBLE_DEVICES=0
