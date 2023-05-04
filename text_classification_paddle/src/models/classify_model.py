@@ -4,7 +4,7 @@
 File  :   classify_model.py
 Author:   dangjinming(776039904@qq.com)
 Date  :   2022/3/16
-Desc  :   ernie_2fc
+Desc  :   classify_model
 """
 
 import sys

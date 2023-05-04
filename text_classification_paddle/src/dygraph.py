@@ -152,11 +152,9 @@ def predict(model,
             if acti_fun == "softmax":
                 cur_pre_label = paddle.nn.functional.softmax(cur_logits).numpy()
                 cur_pre_label = np.argmax(cur_pre_label, axis=-1)
-                print("150", cur_pre_label.shape)
             else:
                 cur_pre_label = paddle.nn.functional.sigmoid(cur_logits)
                 cur_pre_label = paddle.squeeze(cur_pre_label, 1).numpy()
-                print("156", cur_pre_label.shape)
                 assert threshold >= 0.0 and threshold <=1.0, f"{threshold} must between [0, 1]"
                 cur_pre_label = np.where(cur_pre_label > threshold, 1, 0)
 
@@ -207,7 +205,8 @@ def eval(model,
           max_seq_len: int, 最大长度
     [OUT] acc: float, 评估结果
     """
-    pre_label, pre_entity, rea_label, rea_entity = predict(model=model,
+
+    pre_label, pre_label_name, rea_label, rea_label_name = predict(model=model,
                                                            predict_data=eval_data,
                                                            label_encoder=label_encoder,
                                                            batch_size=batch_size,
@@ -218,6 +217,7 @@ def eval(model,
                                                            threshold=threshold)
     rea_label = np.array(rea_label).flatten()
     pre_label = np.array(pre_label).flatten()
+
 
     precision, recall, f1 = helper.multi_classify_prf_macro(rea_label, pre_label)
 

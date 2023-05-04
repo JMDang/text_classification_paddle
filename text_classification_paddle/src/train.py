@@ -13,8 +13,6 @@ import logging
 import configparser
 import numpy as np
 import paddle
-from paddlenlp.transformers import AutoTokenizer,ErnieForTokenClassification
-
 import dygraph
 from data_loader import DataLoader
 from label_encoder import LabelEncoder
@@ -60,11 +58,11 @@ class Train:
                         self.data_set,
                         self.label_encoder)
 
-        if self.train_conf["RUN"].getboolean("ernie_to_static"):
-            self.ernie_to_static(train_conf=self.train_conf,
+        if self.train_conf["RUN"].getboolean("to_static"):
+            self.to_static(train_conf=self.train_conf,
                                  label_encoder=self.label_encoder,
                                  )
-            logging.info("[IMPORTANT]ernie model to static")
+            logging.info("[IMPORTANT] model to static")
     
     @staticmethod
     def check_dir(dir_address):
@@ -85,34 +83,36 @@ class Train:
                data_set,
                label_encoder
                ):
-        """ernie微调
+        """train微调
         """
 
         model_type = train_conf["model"]["model_type"]
+        num_classes = 1 if  train_conf["model"]["acti_fun"] == "sigmoid" \
+                            and label_encoder.size() == 2 else label_encoder.size()
         if model_type == "BoWModel":
-            model = BoWModel(num_classes=label_encoder.size(),
+            model = BoWModel(num_classes=num_classes,
                              use_w2v_emb=True,
                              extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "LSTMModel":
-            model = LSTMModel(num_classes=label_encoder.size(),
+            model = LSTMModel(num_classes=num_classes,
                               use_w2v_emb=True,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "BiLSTMAtt":
             model = BiLSTMAtt(attention_layer=SelfAttention(hidden_size=512),
-                              num_classes=label_encoder.size(),
+                              num_classes=num_classes,
                               use_w2v_emb=True,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "GRUModel":
-            model = GRUModel(num_classes=label_encoder.size(),
+            model = GRUModel(num_classes=num_classes,
                               use_w2v_emb=True,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "BiGRUAtt":
             model = BiGRUAtt(attention_layer=WORD_ATT_V1(fea_size=512, attention_size=256),
-                              num_classes=label_encoder.size(),
+                              num_classes=num_classes,
                               use_w2v_emb=True,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "CNNModel":
-            model = CNNModel(num_classes=label_encoder.size(),
+            model = CNNModel(num_classes=num_classes,
                              use_w2v_emb=True,
                              extended_vocab_path=train_conf["DATA"]["vocab_path"])
         else:
@@ -143,30 +143,32 @@ class Train:
         """模型转静态图模型文件
         """
         model_type = train_conf["model"]["model_type"]
+        num_classes = 1 if train_conf["model"]["acti_fun"] == "sigmoid" \
+                           and label_encoder.size() == 2 else label_encoder.size()
         if model_type == "BoWModel":
-            model = BoWModel(num_classes=label_encoder.size(),
+            model = BoWModel(num_classes=num_classes,
                              use_w2v_emb=True,
                              extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "LSTMModel":
-            model = LSTMModel(num_classes=label_encoder.size(),
+            model = LSTMModel(num_classes=num_classes,
                               use_w2v_emb=True,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "BiLSTMAtt":
             model = BiLSTMAtt(attention_layer=SelfAttention(hidden_size=512),
-                              num_classes=label_encoder.size(),
+                              num_classes=num_classes,
                               use_w2v_emb=True,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "GRUModel":
-            model = GRUModel(num_classes=label_encoder.size(),
+            model = GRUModel(num_classes=num_classes,
                              use_w2v_emb=True,
                              extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "BiGRUAtt":
             model = BiGRUAtt(attention_layer=WORD_ATT_V1(fea_size=512, attention_size=256),
-                             num_classes=label_encoder.size(),
+                             num_classes=num_classes,
                              use_w2v_emb=True,
                              extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "CNNModel":
-            model = CNNModel(num_classes=label_encoder.size(),
+            model = CNNModel(num_classes=num_classes,
                              use_w2v_emb=True,
                              extended_vocab_path=train_conf["DATA"]["vocab_path"])
         else:
@@ -182,7 +184,7 @@ class Train:
                                                 None])
 
         paddle.jit.save(model, train_conf["MODEL_FILE"]["model_static_path"])
-        logging.info("save static ernie to {}".format(train_conf["MODEL_FILE"]["model_static_path"]))
+        logging.info("save static model to {}".format(train_conf["MODEL_FILE"]["model_static_path"]))
 
 if __name__ == "__main__":
     Train(train_conf_path=sys.argv[1]).run()
