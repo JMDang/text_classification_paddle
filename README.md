@@ -2,7 +2,7 @@
 
 ### 代码说明
 
-paddle框架实现BoWModel, LSTMModel, BiLSTMAtt,GRUModel,BiGRUAtt,CNNModel模型,包括查分学习率,softmax多分类任务,sigmoid二分类任务。均可在[text_classification_pretrain_paddle/config/train_conf.ini](https://github.com/JMDang/text_classification_paddle/blob/main/text_classification_paddle/config/train_conf.ini)进行配置。具体使用那种模型在config中可以配置，一目了然。
+paddle框架实现**BoWModel, LSTMModel, BiLSTMAtt,GRUModel,BiGRUAtt,CNNModel**模型,包括查分学习率,softmax多分类任务,sigmoid二分类任务。均可在[text_classification_pretrain_paddle/config/train_conf.ini](https://github.com/JMDang/text_classification_paddle/blob/main/text_classification_paddle/config/train_conf.ini)进行配置。具体使用那种模型在config中可以配置，一目了然。
 
 ### 运行步骤
 
