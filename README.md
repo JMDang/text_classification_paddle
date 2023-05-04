@@ -6,7 +6,7 @@ paddle框架实现BoWModel, LSTMModel, BiLSTMAtt,GRUModel,BiGRUAtt,CNNModel模�
 
 ### 运行步骤
 
-1.**标签配置:**在[text_classification_paddle/input/label.txt](https://github.com/JMDang/text_classification_paddle/blob/main/text_classification_paddle/input/label.txt)中进行标签配置,格式参考Demo,如果是sigmoid的二分类建议labelidw为0的是负样本,1的是正样本。
+1.**标签配置:**在[text_classification_paddle/input/label.txt](https://github.com/JMDang/text_classification_paddle/blob/main/text_classification_paddle/input/label.txt)中进行标签配置,格式参考Demo,如果是sigmoid的二分类建议labelid为0的是负样本,1的是正样本。
 
 2.**数据准备:**在[text_classification_paddle/input/train_data/train.txt](https://github.com/JMDang/text_classification_paddle/blob/main/text_classification_paddle/input/train_data/train.txt)中按照demo格式放入待训练的数据，两列，第一列为需要分类的文本,第二列为labelname(类别需在${project_dir}/input/label.txt配置)。同理，可在dev_data和test_data增加验证和测试数据
 
