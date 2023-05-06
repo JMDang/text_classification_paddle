@@ -4,6 +4,8 @@
 
 paddle框架实现**BoWModel, LSTMModel, BiLSTMAtt,GRUModel,BiGRUAtt,CNNModel**模型,包括查分学习率,softmax多分类任务,sigmoid二分类任务。均可在[text_classification_pretrain_paddle/config/train_conf.ini](https://github.com/JMDang/text_classification_paddle/blob/main/text_classification_paddle/config/train_conf.ini)进行配置。具体使用那种模型在config中可以配置，一目了然。
 
+此外预训练模型的文本分类(以ernie为例)也有对应实现:[**ernie_text_classification_paddle**](https://github.com/JMDang/ernie_text_classification_paddle)
+
 ### 运行步骤
 
 1.**标签配置:**在[text_classification_paddle/input/label.txt](https://github.com/JMDang/text_classification_paddle/blob/main/text_classification_paddle/input/label.txt)中进行标签配置,格式参考Demo,如果是sigmoid的二分类建议labelid为0的是负样本,1的是正样本。
