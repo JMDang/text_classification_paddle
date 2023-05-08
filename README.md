@@ -18,5 +18,9 @@ paddle框架实现**BoWModel, LSTMModel, BiLSTMAtt,GRUModel,BiGRUAtt,CNNModel**�
 
 5.**预测模型：**`cat input/test_data/test.txt | python3 src/predict.py config/train_conf.ini` 预测结果会直接打印到终端，可自行重定向到指定文件。
 
-**其他:**如果遇到任何问题，可以给本人邮箱776039904@qq.com发邮件，看到都会回复。
+**其他:** 友情提供多分类,多标签,二分类标数据集供学习交流
+链接：https://pan.baidu.com/s/1A9VEjvgcOGznTeSPaRGrIQ?pwd=3J36 
+提取码：3J36 
+
+如果遇到任何问题，可以给本人邮箱776039904@qq.com发邮件，看到都会回复。
 
