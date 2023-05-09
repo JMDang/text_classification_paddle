@@ -63,18 +63,26 @@ def train(model,
                                                      max_seq_len,
                                                      max_ensure,
                                                      with_label=True)
-        for cur_train_data, cur_train_length, cur_train_label in train_data_batch:
+        for cur_train_data, cur_train_length, cur_train_label_mc, cur_train_label_ml in train_data_batch:
             cur_train_step += 1
             # 训练数据转为tensor
             cur_train_data = paddle.to_tensor(cur_train_data)
-            cur_train_label = paddle.to_tensor(cur_train_label)
+            cur_train_label_mc = paddle.to_tensor(cur_train_label_mc)
+            cur_train_label_ml = paddle.to_tensor(cur_train_label_ml)
             # 生成loss
             logits = model(cur_train_data)
-            if acti_fun == "sigmoid":
-                #bce需要label是float类型的,f**k
-                cur_train_label = paddle.cast(cur_train_label, "float32")
+            # softmax多分类,softmax二分类
+            if acti_fun == "softmax":
+                loss = criterion(logits, cur_train_label_mc)
+            # sigmoid二分类
+            elif label_encoder.size() == 2:
+                cur_train_label_mc = paddle.cast(cur_train_label_mc, "float32")
                 logits = paddle.squeeze(logits, 1)
-            loss = criterion(logits, cur_train_label)
+                loss = criterion(logits, cur_train_label_mc)
+            # sigmoid多标签
+            else:
+                cur_train_label_ml = paddle.cast(cur_train_label_ml, "float32")
+                loss = criterion(logits, cur_train_label_ml)
 
             if cur_train_step % print_step == 0:
                 speed = cur_train_step / (time.time() - train_start_time)
@@ -113,6 +121,19 @@ def train(model,
 
     logging.info("train model cost time %.4fs" % (time.time() - train_start_time))
 
+def translate(in_list):
+    """
+    in_list:二纬list
+    """
+    result = []
+    for one_case in in_list:
+        one_case_label = []
+        for i, item in enumerate(one_case):
+            if item == 1:
+                one_case_label.append(i)
+        result.append(one_case_label)
+    return result
+
 def predict(model,
             predict_data,
             label_encoder,
@@ -145,23 +166,38 @@ def predict(model,
             max_ensure=max_ensure,
             with_label=True)
         model.eval()
-        for cur_predict_data, cur_predict_length, cur_rea_label in predict_data_batch:
+        for cur_predict_data, cur_predict_length, cur_rea_label_mc, cur_rea_label_ml in predict_data_batch:
             cur_predict_data = paddle.to_tensor(cur_predict_data)
             cur_logits = model(cur_predict_data)
             assert acti_fun in ["softmax", "sigmoid"], f"param acti_fun must in [softmax, sigmoid],yours is {acti_fun}"
+            # softmax多分类,softmax二分类
             if acti_fun == "softmax":
                 cur_pre_label = paddle.nn.functional.softmax(cur_logits).numpy()
                 cur_pre_label = np.argmax(cur_pre_label, axis=-1)
-            else:
+                cur_pre_label_name = [label_encoder.inverse_transform(label_id) for label_id in cur_pre_label]
+                cur_rea_label = cur_rea_label_mc
+            # sigmoid二分类
+            elif label_encoder.size() == 2:
                 cur_pre_label = paddle.nn.functional.sigmoid(cur_logits)
                 cur_pre_label = paddle.squeeze(cur_pre_label, 1).numpy()
                 assert threshold >= 0.0 and threshold <=1.0, f"{threshold} must between [0, 1]"
                 cur_pre_label = np.where(cur_pre_label > threshold, 1, 0)
+                cur_pre_label_name = [label_encoder.inverse_transform(label_id) for label_id in cur_pre_label]
+                cur_rea_label = cur_rea_label_mc
+                # sigmoid多标签
+            else:
+                cur_pre_label = paddle.nn.functional.sigmoid(cur_logits)
+                assert threshold >= 0.0 and threshold <= 1.0, f"{threshold} must between [0, 1]"
+                cur_pre_label = np.where(cur_pre_label > threshold, 1, 0)
+                cur_pre_label_name = [",".join(map(lambda x: label_encoder.inverse_transform(x), one_case_real_label))
+                                      for one_case_real_label in translate(cur_pre_label)]
+                cur_rea_label = cur_rea_label_ml
 
             pre_label.extend(cur_pre_label)
             rea_label.extend(cur_rea_label)
-            pre_label_name.extend([label_encoder.inverse_transform(label_id) for label_id in cur_pre_label])
-            rea_label_name.extend([label_encoder.inverse_transform(label_id) for label_id in cur_rea_label])
+            pre_label_name.extend(cur_pre_label_name)
+            rea_label_name.extend([",".join(map(lambda x: label_encoder.inverse_transform(x), one_case_real_label))
+                                   for one_case_real_label in translate(cur_rea_label_ml)])
         model.train()
         return pre_label, pre_label_name, rea_label, rea_label_name
 
@@ -177,15 +213,27 @@ def predict(model,
             cur_predict_data = paddle.to_tensor(cur_predict_data)
             cur_predict_length = paddle.to_tensor(cur_predict_length)
             cur_logits = model(cur_predict_data)
+            # softmax多分类,softmax二分类
             if acti_fun == "softmax":
                 cur_pre_label = paddle.nn.functional.softmax(cur_logits).numpy()
                 cur_pre_label = np.argmax(cur_pre_label, axis=-1)
-            else:
+                cur_pre_label_name = [label_encoder.inverse_transform(label_id) for label_id in cur_pre_label]
+            # sigmoid二分类
+            elif label_encoder.size() == 2:
                 cur_pre_label = paddle.nn.functional.sigmoid(cur_logits)
                 cur_pre_label = paddle.squeeze(cur_pre_label, 1).numpy()
-                assert threshold >= 0.0 and threshold <=1.0, f"{threshold} must between [0, 1]"
+                assert threshold >= 0.0 and threshold <= 1.0, f"{threshold} must between [0, 1]"
                 cur_pre_label = np.where(cur_pre_label > threshold, 1, 0)
-            pre_label_name.extend([label_encoder.inverse_transform(label_id) for label_id in cur_pre_label])
+                cur_pre_label_name = [label_encoder.inverse_transform(label_id) for label_id in cur_pre_label]
+            # sigmoid多标签
+            else:
+                cur_pre_label = paddle.nn.functional.sigmoid(cur_logits)
+                assert threshold >= 0.0 and threshold <= 1.0, f"{threshold} must between [0, 1]"
+                cur_pre_label = np.where(cur_pre_label > threshold, 1, 0)
+                cur_pre_label_name = [",".join(map(lambda x: label_encoder.inverse_transform(x), one_case_real_label))
+                                      for one_case_real_label in translate(cur_pre_label)]
+            pre_label.extend(cur_pre_label)
+            pre_label_name.extend(cur_pre_label_name)
         model.train()
         return pre_label, pre_label_name
 

@@ -40,28 +40,31 @@ class DataLoader:
         """
         if train_data_dir:
             self.train_text_list, self.train_text_ids_list, self.train_text_ids_length, \
-                 self.train_label_list = \
+                 self.train_label_list_mc,  self.train_label_list_ml = \
                 DataLoader.read_file(train_data_dir, self.vocab_tokenizer, self.label_encoder)
             logging.info(f"train data num = {len(self.train_text_ids_list)}")
-            self.train_data = list(zip(self.train_text_ids_list, self.train_text_ids_length, self.train_label_list))
+            self.train_data = list(zip(self.train_text_ids_list, self.train_text_ids_length,
+                                       self.train_label_list_mc,  self.train_label_list_ml))
         else:
             self.train_data = None
 
         if dev_data_dir:
             self.dev_text_list, self.dev_text_ids_list, self.dev_text_ids_length, \
-                self.dev_label_list = \
+                self.dev_label_list_mc,  self.dev_label_list_ml = \
                 DataLoader.read_file(dev_data_dir,self.vocab_tokenizer, self.label_encoder)
             logging.info("dev data num = {}".format(len(self.dev_text_ids_list)))
-            self.dev_data = list(zip(self.dev_text_ids_list, self.dev_text_ids_length, self.dev_label_list))
+            self.dev_data = list(zip(self.dev_text_ids_list, self.dev_text_ids_length,
+                                     self.dev_label_list_mc,  self.dev_label_list_ml))
         else:
             self.dev_data = None
 
         if test_data_dir:
             self.test_text_list, self.test_text_ids_list, self.test_text_ids_length, \
-            self.test_label_list = \
+            self.test_label_list_mc,  self.test_label_list_ml = \
                 DataLoader.read_file(test_data_dir, self.vocab_tokenizer, self.label_encoder)
             logging.info("test data num = {}".format(len(self.test_text_ids_list)))
-            self.test_data = list(zip(self.test_text_ids_list, self.test_text_ids_length, self.test_label_list))
+            self.test_data = list(zip(self.test_text_ids_list, self.test_text_ids_length,
+                                      self.test_label_list_mc, self.test_label_list_ml))
         else:
             self.test_data = None
 
@@ -74,7 +77,8 @@ class DataLoader:
         [OUT] res: list[]
         """
         text_list = []
-        label_list = []
+        label_list_mc = []
+        label_list_ml = []
         file_list = DataLoader.get_file_list(data_dir)
         for file_index, file_path in enumerate(file_list):
             with open(file_path, "r", encoding='utf-8') as fr:
@@ -84,12 +88,14 @@ class DataLoader:
                     if len(cols) != 2:#text \t labels
                         continue
                     text, label = cols
-                    if text.find(" ") != -1:
-                        continue
-                    if not label:
+                    if text.find(" ") != -1 or not label:
                         continue
                     text_list.append(" ".join(list(text)))
-                    label_list.append(label_encoder.transform(label))
+                    label_ids = [label_encoder.transform(l) for l in label.split(",")]
+                    # 兼容单标签和多标签
+                    label_list_mc.append(label_ids[0])
+                    label_list_ml.append(
+                        [float(1) if i in label_ids else float(0) for i in range(label_encoder.size())])
 
         logging.info("tokenizer encode start")
         start_time = time.time()
@@ -103,9 +109,10 @@ class DataLoader:
         for i in range(3):
             logging.info(text_list[i])
             logging.info(json.dumps(text_ids_list[i]))
-            logging.info(json.dumps(label_list[i]))
+            logging.info(json.dumps(label_list_mc[i]))
+            logging.info(json.dumps(label_list_ml[i]))
             logging.info("*"*77)
-        return text_list, text_ids_list, text_ids_length, label_list
+        return text_list, text_ids_list, text_ids_length, label_list_mc, label_list_ml
 
     @staticmethod
     def get_file_list(data_path):
@@ -169,8 +176,8 @@ class DataLoader:
         batch_list.append(ids_array)
         batch_list.append(length_array)
         if with_label:
-            label_array = np.array(data_lists[2])
-            batch_list.append(label_array)
+            batch_list.append(np.array(data_lists[2]))
+            batch_list.append(np.array(data_lists[3]))
         return batch_list
 
     @staticmethod
@@ -204,11 +211,14 @@ if __name__ == "__main__":
                                                  with_label=True
                                                  )
 
-    for cur_train_data, cur_train_length, cur_train_label in train_data_batch:
+    for cur_train_data, cur_train_length, cur_train_label_mc, cur_train_label_ml in train_data_batch:
         print("djm:", cur_train_data.shape)
         print("djm:", cur_train_data[0])
-        print("djm:", cur_train_label.shape)
-        print("djm:", cur_train_label[0])
-        print("djm:", cur_train_label[7])
+        print("cur_train_label_mc:", cur_train_label_mc.shape)
+        print("cur_train_label_mc:", cur_train_label_mc[0])
+        print("cur_train_label_mc:", cur_train_label_mc[7])
+        print("cur_train_label_ml:", cur_train_label_ml.shape)
+        print("cur_train_label_ml:", cur_train_label_ml[0])
+        print("cur_train_label_ml:", cur_train_label_ml[7])
         print("djm:", cur_train_length)
         break
