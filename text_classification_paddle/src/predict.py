@@ -48,31 +48,32 @@ class Predict:
             model_type = self.predict_conf["model"]["model_type"]
             num_classes = 1 if self.predict_conf["model"]["acti_fun"] == "sigmoid" \
                                and label_encoder.size() == 2 else label_encoder.size()
+            use_w2v_emb = self.predict_conf["model"].getboolean("use_w2v_emb")
             if model_type == "BoWModel":
                 model_predict = BoWModel(num_classes=num_classes,
-                                 use_w2v_emb=True,
+                                 use_w2v_emb=use_w2v_emb,
                                  extended_vocab_path=self.predict_conf["DATA"]["vocab_path"])
             elif model_type == "LSTMModel":
                 model_predict = LSTMModel(num_classes=num_classes,
-                                  use_w2v_emb=True,
+                                  use_w2v_emb=use_w2v_emb,
                                   extended_vocab_path=self.predict_conf["DATA"]["vocab_path"])
             elif model_type == "BiLSTMAtt":
                 model_predict = BiLSTMAtt(attention_layer=SelfAttention(hidden_size=512),
                                   num_classes=num_classes,
-                                  use_w2v_emb=True,
+                                  use_w2v_emb=use_w2v_emb,
                                   extended_vocab_path=self.predict_conf["DATA"]["vocab_path"])
             elif model_type == "GRUModel":
                 model_predict = GRUModel(num_classes=num_classes,
-                                 use_w2v_emb=True,
+                                 use_w2v_emb=use_w2v_emb,
                                  extended_vocab_path=self.predict_conf["DATA"]["vocab_path"])
             elif model_type == "BiGRUAtt":
                 model_predict = BiGRUAtt(attention_layer=WORD_ATT_V1(fea_size=512, attention_size=256),
                                  num_classes=num_classes,
-                                 use_w2v_emb=True,
+                                 use_w2v_emb=use_w2v_emb,
                                  extended_vocab_path=self.predict_conf["DATA"]["vocab_path"])
             elif model_type == "CNNModel":
                 model_predict = CNNModel(num_classes=num_classes,
-                                 use_w2v_emb=True,
+                                 use_w2v_emb=use_w2v_emb,
                                  extended_vocab_path=self.predict_conf["DATA"]["vocab_path"])
             else:
                 raise ValueError(f"unknown model_type: {model_type} model_type, \

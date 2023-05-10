@@ -89,31 +89,32 @@ class Train:
         model_type = train_conf["model"]["model_type"]
         num_classes = 1 if  train_conf["model"]["acti_fun"] == "sigmoid" \
                             and label_encoder.size() == 2 else label_encoder.size()
+        use_w2v_emb = train_conf["model"].getboolean("use_w2v_emb")
         if model_type == "BoWModel":
             model = BoWModel(num_classes=num_classes,
-                             use_w2v_emb=True,
+                             use_w2v_emb=use_w2v_emb,
                              extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "LSTMModel":
             model = LSTMModel(num_classes=num_classes,
-                              use_w2v_emb=True,
+                              use_w2v_emb=use_w2v_emb,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "BiLSTMAtt":
             model = BiLSTMAtt(attention_layer=SelfAttention(hidden_size=512),
                               num_classes=num_classes,
-                              use_w2v_emb=True,
+                              use_w2v_emb=use_w2v_emb,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "GRUModel":
             model = GRUModel(num_classes=num_classes,
-                              use_w2v_emb=True,
+                              use_w2v_emb=use_w2v_emb,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "BiGRUAtt":
             model = BiGRUAtt(attention_layer=WORD_ATT_V1(fea_size=512, attention_size=256),
                               num_classes=num_classes,
-                              use_w2v_emb=True,
+                              use_w2v_emb=use_w2v_emb,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "CNNModel":
             model = CNNModel(num_classes=num_classes,
-                             use_w2v_emb=True,
+                             use_w2v_emb=use_w2v_emb,
                              extended_vocab_path=train_conf["DATA"]["vocab_path"])
         else:
             raise ValueError(f"unknown model_type: {model_type} model_type, \
@@ -145,31 +146,32 @@ class Train:
         model_type = train_conf["model"]["model_type"]
         num_classes = 1 if train_conf["model"]["acti_fun"] == "sigmoid" \
                            and label_encoder.size() == 2 else label_encoder.size()
+        use_w2v_emb = train_conf["model"].getboolean("use_w2v_emb")
         if model_type == "BoWModel":
             model = BoWModel(num_classes=num_classes,
-                             use_w2v_emb=True,
+                             use_w2v_emb=use_w2v_emb,
                              extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "LSTMModel":
             model = LSTMModel(num_classes=num_classes,
-                              use_w2v_emb=True,
+                              use_w2v_emb=use_w2v_emb,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "BiLSTMAtt":
             model = BiLSTMAtt(attention_layer=SelfAttention(hidden_size=512),
                               num_classes=num_classes,
-                              use_w2v_emb=True,
+                              use_w2v_emb=use_w2v_emb,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "GRUModel":
             model = GRUModel(num_classes=num_classes,
-                             use_w2v_emb=True,
+                             use_w2v_emb=use_w2v_emb,
                              extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "BiGRUAtt":
             model = BiGRUAtt(attention_layer=WORD_ATT_V1(fea_size=512, attention_size=256),
                              num_classes=num_classes,
-                             use_w2v_emb=True,
+                             use_w2v_emb=use_w2v_emb,
                              extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "CNNModel":
             model = CNNModel(num_classes=num_classes,
-                             use_w2v_emb=True,
+                             use_w2v_emb=use_w2v_emb,
                              extended_vocab_path=train_conf["DATA"]["vocab_path"])
         else:
             raise ValueError(f"unknown model_type: {model_type} model_type, \
