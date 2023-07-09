@@ -2,7 +2,7 @@
 # -*- utf-8 -*-
 """
 File  :   classify_model.py
-Author:   dangjinming(776039904@qq.com)
+Author:   dangjinming(jmdang777@qq.com)
 Date  :   2022/3/16
 Desc  :   classify_model
 """
