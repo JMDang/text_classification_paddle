@@ -14,7 +14,8 @@ from paddlenlp.transformers import ErniePretrainedModel
 from paddle.nn import  BatchNorm, Dropout,Flatten
 
 class ErnieForSequenceClassification(ErniePretrainedModel):
-     """
+    
+    """
     此处实现为仿照paddlenlp/transformers/ernie/modeling.py中的ErnieForSequenceClassification进行自定义类实现
     paddlenlp2.2
         ErnieForSequenceClassification.from_pretrained('ernie-1.0', num_classes=7, id2label=id2label)
