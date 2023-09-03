@@ -80,7 +80,7 @@ class SelfAttention(nn.Layer):
     def __init__(self, hidden_size):
         super().__init__()
         self.hidden_size = hidden_size
-        self.att_weight = self.create_parameter(shape=[1, hidden_size // 2, 1], dtype="float32")
+        self.att_weight = self.create_parameter(shape=[1, hidden_size, 1], dtype="float32")
 
     def forward(self, input, mask=None):
         """
