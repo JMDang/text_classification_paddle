@@ -27,10 +27,20 @@ class DataLoader:
     def __init__(self, label_encoder, vocab_path=None):
         self.label_encoder = label_encoder
         # 为了对训练文本进行序列化,
-        self.vocab_tokenizer = TokenEmbedding(embedding_name="w2v.baidu_encyclopedia.target.word-word.dim300",
+        self.vocab = TokenEmbedding(embedding_name="w2v.baidu_encyclopedia.target.word-word.dim300",
                                               extended_vocab_path=vocab_path,
                                               unknown_token="[UNK]"
                                               ).vocab
+
+    @staticmethod
+    def get_vocab_level(token_to_idx):
+        count = 0
+        for word in token_to_idx:
+            if len(word) > 1:
+                count += 1
+            if count > 99:
+                return "word"
+        return "char"
     
     def gen_data(self,
             train_data_dir=None,
@@ -41,7 +51,7 @@ class DataLoader:
         if train_data_dir:
             self.train_text_list, self.train_text_ids_list, self.train_text_ids_length, \
                  self.train_label_list_mc,  self.train_label_list_ml = \
-                DataLoader.read_file(train_data_dir, self.vocab_tokenizer, self.label_encoder)
+                DataLoader.read_file(train_data_dir, self.vocab, self.label_encoder)
             logging.info(f"train data num = {len(self.train_text_ids_list)}")
             self.train_data = list(zip(self.train_text_ids_list, self.train_text_ids_length,
                                        self.train_label_list_mc,  self.train_label_list_ml))
@@ -51,7 +61,7 @@ class DataLoader:
         if dev_data_dir:
             self.dev_text_list, self.dev_text_ids_list, self.dev_text_ids_length, \
                 self.dev_label_list_mc,  self.dev_label_list_ml = \
-                DataLoader.read_file(dev_data_dir,self.vocab_tokenizer, self.label_encoder)
+                DataLoader.read_file(dev_data_dir,self.vocab, self.label_encoder)
             logging.info("dev data num = {}".format(len(self.dev_text_ids_list)))
             self.dev_data = list(zip(self.dev_text_ids_list, self.dev_text_ids_length,
                                      self.dev_label_list_mc,  self.dev_label_list_ml))
@@ -61,7 +71,7 @@ class DataLoader:
         if test_data_dir:
             self.test_text_list, self.test_text_ids_list, self.test_text_ids_length, \
             self.test_label_list_mc,  self.test_label_list_ml = \
-                DataLoader.read_file(test_data_dir, self.vocab_tokenizer, self.label_encoder)
+                DataLoader.read_file(test_data_dir, self.vocab, self.label_encoder)
             logging.info("test data num = {}".format(len(self.test_text_ids_list)))
             self.test_data = list(zip(self.test_text_ids_list, self.test_text_ids_length,
                                       self.test_label_list_mc, self.test_label_list_ml))
@@ -69,13 +79,14 @@ class DataLoader:
             self.test_data = None
 
     @staticmethod
-    def read_file(data_dir, vocab_tokenizer, label_encoder):
+    def read_file(data_dir, vocab, label_encoder):
         """
         [IN] data_dir: 数据目录
              tokenizer: 切分工具
              label_encoder: 标签工具
         [OUT] res: list[]
         """
+        vocal_level = DataLoader.get_vocab_level(vocab.token_to_idx)
         text_list = []
         label_list_mc = []
         label_list_ml = []
@@ -90,7 +101,7 @@ class DataLoader:
                     text, label = cols
                     if text.find(" ") != -1 or not label:
                         continue
-                    text_list.append(" ".join(list(text)))
+                    text_list.append(text)
                     label_ids = [label_encoder.transform(l) for l in label.split(",")]
                     # 兼容单标签和多标签
                     label_list_mc.append(label_ids[0])
@@ -99,8 +110,12 @@ class DataLoader:
 
         logging.info("tokenizer encode start")
         start_time = time.time()
-        text_ids_list = [vocab_tokenizer.to_indices(list(x)) for x in text_list]
-        # text_list_reconv = [vocab_tokenizer.to_tokens(x) for x in text_ids_list]
+        if vocal_level == "word":
+            text_ids_list = [vocab.to_indices(list(jieba.cut(x))) for x in text_list]
+        else:
+            text_ids_list = [vocab.to_indices([ch for ch in x]) for x in text_list]
+        text_ids_list = [vocab.to_indices(list(x)) for x in text_list]
+        # text_list_reconv = [vocab.to_tokens(x) for x in text_ids_list]
         logging.info(f"cost time:{time.time() - start_time: .4f}s")
         logging.info("tokenizer encode end")
         text_ids_length = [len(x) for x in text_ids_list]
