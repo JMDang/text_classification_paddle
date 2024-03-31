@@ -20,7 +20,7 @@ from label_encoder import LabelEncoder
 from models.classify_model import BoWModel, LSTMModel, BiLSTMAtt,GRUModel,BiGRUAtt,CNNModel
 from paddlenlp.embeddings import TokenEmbedding,list_embedding_name
 from layers.self_layers import WORD_ATT_V1, WORD_ATT_V2, SelfAttention, SelfInteractiveAttention
-
+import jieba
 
 class Predict:
     """模型预测
@@ -34,11 +34,11 @@ class Predict:
         for label_id, label_name in sorted(self.label_encoder.id_label_dict.items(), key=lambda x:x[0]):
             logging.info("%d: %s" % (label_id, label_name))
 
-        self.vocab_tokenizer = TokenEmbedding(embedding_name="w2v.baidu_encyclopedia.target.word-word.dim300",
+        self.vocab = TokenEmbedding(embedding_name="w2v.baidu_encyclopedia.target.word-word.dim300",
                                               extended_vocab_path=self.predict_conf["DATA"]["vocab_path"],
                                               unknown_token="[UNK]"
                                               ).vocab
-
+        self.vocab_level = Dataloader.get_vocal_level(self.vocab.token_to_idx)
     def run(self):
         """执行入口
         """
@@ -91,7 +91,11 @@ class Predict:
                 mark = mark + 1
                 cols = line.strip("\n").split("\t")
                 origin_text = cols[0]
-                text = self.vocab_tokenizer.to_indices(list(origin_text))
+                if slf.vocab_level == "word":
+                    text = self.vocab.to_indices(list(jieba.cut(orgin_text)))
+                else:
+                     text = self.vocab.to_indices([ch for ch in orgin_text])
+                text = self.vocab.to_indices(list(origin_text))
                 text_list.append(text)
                 length_list.append(len(text))
                 origin_texts.append(origin_text)
