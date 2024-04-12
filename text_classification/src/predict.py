@@ -92,9 +92,9 @@ class Predict:
                 cols = line.strip("\n").split("\t")
                 origin_text = cols[0]
                 if slf.vocab_level == "word":
-                    text = self.vocab.to_indices(list(jieba.cut(orgin_text)))
+                    text = self.vocab.to_indices(list(jieba.cut(origin_text)))
                 else:
-                     text = self.vocab.to_indices([ch for ch in orgin_text])
+                     text = self.vocab.to_indices([ch for ch in origin_text])
                 text = self.vocab.to_indices(list(origin_text))
                 text_list.append(text)
                 length_list.append(len(text))
