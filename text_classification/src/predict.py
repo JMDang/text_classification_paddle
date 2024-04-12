@@ -38,7 +38,7 @@ class Predict:
                                               extended_vocab_path=self.predict_conf["DATA"]["vocab_path"],
                                               unknown_token="[UNK]"
                                               ).vocab
-        self.vocab_level = DataLoader.get_vocal_level(self.vocab.token_to_idx)
+        self.vocab_level = DataLoader.get_vocab_level(self.vocab.token_to_idx)
     def run(self):
         """执行入口
         """
@@ -91,7 +91,7 @@ class Predict:
                 mark = mark + 1
                 cols = line.strip("\n").split("\t")
                 origin_text = cols[0]
-                if slf.vocab_level == "word":
+                if self.vocab_level == "word":
                     text = self.vocab.to_indices(list(jieba.cut(origin_text)))
                 else:
                      text = self.vocab.to_indices([ch for ch in origin_text])
