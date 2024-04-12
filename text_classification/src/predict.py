@@ -58,7 +58,7 @@ class Predict:
                                   use_w2v_emb=use_w2v_emb,
                                   extended_vocab_path=self.predict_conf["DATA"]["vocab_path"])
             elif model_type == "BiLSTMAtt":
-                model_predict = BiLSTMAtt(attention_layer=SelfAttention(hidden_size=512),
+                model_predict = BiLSTMAtt(attention_layer=SelfAttention(hidden_size=256),
                                   num_classes=num_classes,
                                   use_w2v_emb=use_w2v_emb,
                                   extended_vocab_path=self.predict_conf["DATA"]["vocab_path"])
