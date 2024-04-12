@@ -156,7 +156,7 @@ class Train:
                               use_w2v_emb=use_w2v_emb,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
         elif model_type == "BiLSTMAtt":
-            model = BiLSTMAtt(attention_layer=SelfAttention(hidden_size=512),
+            model = BiLSTMAtt(attention_layer=SelfAttention(hidden_size=256),
                               num_classes=num_classes,
                               use_w2v_emb=use_w2v_emb,
                               extended_vocab_path=train_conf["DATA"]["vocab_path"])
