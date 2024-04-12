@@ -13,6 +13,7 @@ import time
 import json
 import numpy as np
 import logging
+import jieba
 from collections import deque
 from paddlenlp.embeddings import TokenEmbedding,list_embedding_name
 
