@@ -38,7 +38,7 @@ class Predict:
                                               extended_vocab_path=self.predict_conf["DATA"]["vocab_path"],
                                               unknown_token="[UNK]"
                                               ).vocab
-        self.vocab_level = Dataloader.get_vocal_level(self.vocab.token_to_idx)
+        self.vocab_level = DataLoader.get_vocal_level(self.vocab.token_to_idx)
     def run(self):
         """执行入口
         """
