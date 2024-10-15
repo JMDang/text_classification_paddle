@@ -122,7 +122,7 @@ class Train:
 
 
 
-        dygraph.load_model(model, train_conf["MODEL_FILE"]["model_best_path"])
+        dygraph.load_model(model, train_conf["MODEL_FILE"]["model_best_path"] + ".pdparams")
 
         dygraph.train(model,
                       train_data=data_set.train_data,
@@ -177,7 +177,7 @@ class Train:
             raise ValueError(f"unknown model_type: {model_type} model_type, \
                     model_type must in  [BoWModel, LSTMModel, BiLSTMAtt, GRUModel, BiGRUAtt, CNNModel")
 
-        dygraph.load_model(model, train_conf["MODEL_FILE"]["model_best_path"])
+        dygraph.load_model(model, train_conf["MODEL_FILE"]["model_best_path"] + ".pdparams")
 
         model.eval()
 
