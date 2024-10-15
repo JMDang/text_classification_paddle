@@ -54,7 +54,7 @@ class Predict:
                 ernie = ErnieModel.from_pretrained(self.predict_conf["ERNIE"]["pretrain_model"])
                 model_predict = ErnieForSequenceClassificationV2(ernie, num_classes=num_classes)
 
-            dygraph.load_model(model_predict, self.predict_conf["MODEL_FILE"]["model_best_path"])
+            dygraph.load_model(model_predict, self.predict_conf["MODEL_FILE"]["model_best_path"] + ".pdparams")
 
             predict_data = []
             text_list = []
