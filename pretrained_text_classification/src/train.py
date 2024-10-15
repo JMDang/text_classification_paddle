@@ -100,7 +100,7 @@ class Train:
             ernie = ErnieModel.from_pretrained(train_conf["ERNIE"]["pretrain_model"])
             model = ErnieForSequenceClassificationV2(ernie, num_classes=num_classes)
 
-        dygraph.load_model(model, train_conf["MODEL_FILE"]["model_best_path"])
+        dygraph.load_model(model, train_conf["MODEL_FILE"]["model_best_path"] + ".pdparams")
 
         dygraph.train(model,
                       train_data=data_set.train_data,
@@ -133,7 +133,7 @@ class Train:
             ernie = ErnieModel.from_pretrained(train_conf["ERNIE"]["pretrain_model"])
             model = ErnieForSequenceClassificationV2(ernie, num_classes=num_classes)
 
-        dygraph.load_model(model, train_conf["MODEL_FILE"]["model_best_path"])
+        dygraph.load_model(model, train_conf["MODEL_FILE"]["model_best_path"] + ".pdparams")
 
         model.eval()
 
