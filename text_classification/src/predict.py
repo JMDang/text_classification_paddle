@@ -79,7 +79,7 @@ class Predict:
                 raise ValueError(f"unknown model_type: {model_type} model_type, \
                                 model_type must in  [BoWModel, LSTMModel, BiLSTMAtt, GRUModel, BiGRUAtt, CNNModel")
 
-            dygraph.load_model(model_predict, self.predict_conf["MODEL_FILE"]["model_best_path"])
+            dygraph.load_model(model_predict, self.predict_conf["MODEL_FILE"]["model_best_path"] + ".pdparams")
 
             predict_data = []
             text_list = []
